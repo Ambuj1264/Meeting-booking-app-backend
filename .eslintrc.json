@@ -1,18 +1,25 @@
 {
-    "parser": "@typescript-eslint/parser",
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:prettier/recommended"  // Enables eslint-plugin-prettier and displays Prettier errors as ESLint errors
-    ],
-    "rules": {
-      "@typescript-eslint/no-explicit-any": "off",  // Disable no-explicit-any rule if required
-      "prettier/prettier": [
-        "error",                                    // Prettier issues will trigger ESLint errors
-        {
-          "endOfLine": "auto"                       // Ensure consistent line endings
-        }
-      ]
-    }
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended" // Integrates Prettier into ESLint
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020, // Supports modern ECMAScript features
+    "sourceType": "module"
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off", // Disable no-explicit-any rule if needed
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto" // Ensure consistent line endings (especially on different OS)
+      }
+    ]
+  },
+  "env": {
+    "node": true, // Enable Node.js global variables and Node.js scoping
+    "es2021": true // Enable ECMAScript 2021 globals like Promise, etc.
   }
-  
+}
