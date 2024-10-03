@@ -2,10 +2,17 @@
     "parser": "@typescript-eslint/parser",
     "extends": [
       "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"  // Enables eslint-plugin-prettier and displays Prettier errors as ESLint errors
     ],
     "rules": {
-      "@typescript-eslint/no-explicit-any": "off"
+      "@typescript-eslint/no-explicit-any": "off",  // Disable no-explicit-any rule if required
+      "prettier/prettier": [
+        "error",                                    // Prettier issues will trigger ESLint errors
+        {
+          "endOfLine": "auto"                       // Ensure consistent line endings
+        }
+      ]
     }
   }
   
