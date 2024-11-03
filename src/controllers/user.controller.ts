@@ -6,12 +6,30 @@ const userService = new UserService();
 
 export const UserController = {
   createUser: async (req: Request, res: Response) => {
+    console.log(req);
     try {
-      const user = await userService.createUser(req.body);
+      const {
+        email,
+        name,
+        password,
+        role,
+        company,
+        noOfMeetingRooms,
+        meetingRooms,
+      } = req.body;
+      const user = await userService.createUser({
+        email,
+        name,
+        password,
+        role,
+        company,
+        noOfMeetingRooms,
+        meetingRooms,
+      });
       successResponse(res, 'User created successfully', user);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      errorResponse(res, 'Failed to create user');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      errorResponse(res, error.message);
     }
   },
   getAllUsers: async (req: Request, res: Response) => {
@@ -31,6 +49,16 @@ export const UserController = {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       errorResponse(res, 'Failed to delete user');
+    }
+  },
+  login: async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const user = await userService.login(email, password);
+      successResponse(res, 'User logged in successfully', user);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      errorResponse(res, error.message);
     }
   },
 };
