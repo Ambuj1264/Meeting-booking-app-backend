@@ -44,7 +44,7 @@ export class UserRepository {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // Provide more specific error handling and rethrow the error
-      throw new Error(`Error creating user: ${error.message}`);
+      throw new Error(`${error.message}`);
     }
   }
 
