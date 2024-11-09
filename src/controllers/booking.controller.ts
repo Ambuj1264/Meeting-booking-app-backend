@@ -3,31 +3,59 @@ import { errorResponse, successResponse } from '../utils/response';
 import { BookingRepository } from '../repositories/booking.repository';
 const bookingRepository = new BookingRepository();
 export const BookingController = {
-  create: (req: Request, res: Response) => {
+  findRoom: async (req: Request, res: Response) => {
     try {
-      const {
+      const { id: companyId } = req.params;
+      console.log(companyId);
+      const findCompany = await bookingRepository.findCompany(companyId);
+
+      successResponse(res, 'Company retrieved successfully', findCompany);
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  create: async (req: Request, res: Response) => {
+    try {
+      const { email, date, endTime, startTime, meetingId, companyId, name } =
+        req.body;
+      //check email is exist or not
+      //check the time is already token
+      const isTakenTimeByOtherBooking =
+        await bookingRepository.isTakenTimeByOtherBooking(
+          date,
+          startTime,
+          endTime,
+          meetingId,
+          companyId
+        );
+
+      if (isTakenTimeByOtherBooking) {
+        errorResponse(
+          res,
+          'Time is already taken by another booking',
+          isTakenTimeByOtherBooking
+        );
+        return;
+      }
+      const booking = await bookingRepository.create(
         email,
         date,
-        endTime,
-        startTime,
-        meetingRoom,
-        meetingId = '5235715443',
-      } = req.body;
-      const booking = bookingRepository.create(
-        email,
-        date,
         startTime,
         endTime,
-        meetingRoom,
-        meetingId
+        meetingId,
+        companyId,
+        name
       );
       if (!booking) {
         errorResponse(res, 'Failed to create booking');
+        return;
       }
-      successResponse(res, 'Booking created successfully');
-    } catch (error) {
+      successResponse(res, 'Booking created successfully', booking);
+      return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.log(error);
-      errorResponse(res, 'Failed to create booking');
+      errorResponse(res, 'Failed to create booking', error.message);
     }
   },
 

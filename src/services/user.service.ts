@@ -1,24 +1,38 @@
+import { Types } from 'mongoose';
 import { UserRepository } from '../repositories/user.repository';
 
 const userRepository = new UserRepository();
 
 export class UserService {
+  async createCompany(
+    name: string,
+    meetingRooms?: Types.ObjectId[],
+    noOfMeetingRooms?: number
+  ) {
+    return await userRepository.createCompany(
+      name,
+      meetingRooms,
+      noOfMeetingRooms
+    );
+  }
+  async createMeetingRooms(meetingRooms: [{ name: string }]) {
+    return await userRepository.createMeetingRooms(meetingRooms);
+  }
+  async isCompanyAlreadyExist(name: string) {
+    return await userRepository.isCompanyAlreadyExist(name);
+  }
   async createUser({
     email,
     name,
     password,
     role,
-    company,
-    noOfMeetingRooms,
-    meetingRooms,
+    companyId,
   }: {
     email: string;
     name: string;
     password: string;
     role: string;
-    company: string;
-    noOfMeetingRooms: number;
-    meetingRooms: string[];
+    companyId?: Types.ObjectId;
   }) {
     try {
       return await userRepository.createUser({
@@ -26,9 +40,7 @@ export class UserService {
         name,
         password,
         role,
-        company,
-        noOfMeetingRooms,
-        meetingRooms,
+        companyId,
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

@@ -1,43 +1,70 @@
 import { User } from '../models/user.model';
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
+import { CompanyModel } from '../models/company.model';
+import { RoomModel } from '../models/room.model';
+import { Types } from 'mongoose';
 export class UserRepository {
+  async createCompany(
+    name: string,
+    meetingRooms?: Types.ObjectId[],
+    noOfMeetingRooms?: number
+  ) {
+    try {
+      const company = await CompanyModel.create({
+        name,
+        meetingRooms,
+        noOfMeetingRooms,
+      });
+      return company;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to create company');
+    }
+  }
+  async createMeetingRooms(meetingRooms: [{ name: string }]) {
+    try {
+      const rooms = await RoomModel.insertMany(meetingRooms);
+      //all _id of rooms
+      return rooms.map(room => room._id);
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to create meeting rooms');
+    }
+  }
+  async isCompanyAlreadyExist(name: string) {
+    return await CompanyModel.findOne({ name, isDeleted: false });
+  }
   async createUser({
     email,
     name,
     password,
     role,
-    company,
-    noOfMeetingRooms,
-    meetingRooms,
+    companyId,
   }: {
     email: string;
     name: string;
     password: string;
     role: string;
-    company: string;
-    noOfMeetingRooms: number;
-    meetingRooms: string[];
+    companyId?: Types.ObjectId;
   }) {
     try {
       // Check if the user already exists
-      const existingUser = await this.isAlreadyExist(email);
-      if (existingUser) {
-        throw new Error('User already exists');
-      }
+      // const existingUser = await this.isAlreadyExist(email);
+      // if (existingUser) {
+      //   throw new Error('User already exists');
+      // }
 
       // Hash the password before saving
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create a new user with hashed password
       const user = await User.create({
-        email,
+        email: email.toLowerCase(),
         name,
         password: hashedPassword,
         role,
-        company,
-        noOfMeetingRooms,
-        meetingRooms,
+        companyId,
       });
 
       return user;
@@ -49,19 +76,24 @@ export class UserRepository {
   }
 
   async getUserByEmail(email: string) {
-    return await User.findOne({ email });
+    return await User.findOne({ email: email.toLowerCase(), isDeleted: false });
   }
 
   async getAllUsers() {
-    return await User.find();
+    return await User.find({
+      isDeleted: false,
+    });
   }
 
   async deleteUserById(id: string) {
-    return await User.findByIdAndDelete(id);
+    return await User.findOneAndDelete({
+      _id: id,
+      isDeleted: false,
+    });
   }
 
   async isAlreadyExist(email: string) {
-    return await User.findOne({ email });
+    return await User.findOne({ email, isDeleted: false });
   }
 
   async login(email: string, password: string) {

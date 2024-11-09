@@ -7,17 +7,8 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, required: true, enum: ROLES, default: ROLES.ADMIN },
-    company: { type: String, required: true, unique: true },
-    noOfMeetingRooms: { type: Number, default: 1, min: 1 },
-    meetingRooms: {
-      type: [
-        {
-          id: String,
-          name: String,
-        },
-      ],
-      default: [],
-    },
+    companyId: { type: String, required: false, unique: true },
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

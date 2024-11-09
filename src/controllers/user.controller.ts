@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
 import { errorResponse, successResponse } from '../utils/response';
+import { Types } from 'mongoose';
 
 const userService = new UserService();
 
 export const UserController = {
   createUser: async (req: Request, res: Response) => {
-    console.log(req);
     try {
       const {
         email,
@@ -17,18 +17,58 @@ export const UserController = {
         noOfMeetingRooms,
         meetingRooms,
       } = req.body;
+      // check user is already exist
+      const isUserAlreadyExist = await userService.getUserByEmail(email);
+      if (isUserAlreadyExist) {
+        errorResponse(res, 'User already exist', isUserAlreadyExist);
+        return;
+      }
+      // check company name is already exist
+      const isCompanyAlreadyExist =
+        await userService.isCompanyAlreadyExist(company);
+      console.log(isCompanyAlreadyExist, 'isCompanyAlreadyExist');
+      if (isCompanyAlreadyExist) {
+        errorResponse(res, 'Company already exist', isCompanyAlreadyExist);
+        return;
+      }
+
+      // register first rooms
+      const meetingRoomsData =
+        await userService.createMeetingRooms(meetingRooms);
+
+      if (!meetingRoomsData) {
+        errorResponse(res, 'Failed to create meeting rooms');
+        return;
+      }
+      // register a company
+      const companyData = await userService.createCompany(
+        company,
+        meetingRoomsData,
+        noOfMeetingRooms
+      );
+
+      if (!companyData) {
+        errorResponse(res, 'Failed to create company');
+        return;
+      }
+
+      const companyId: Types.ObjectId | undefined =
+        companyData && companyData._id;
+
+      // register a user
       const user = await userService.createUser({
         email,
         name,
         password,
         role,
-        company,
-        noOfMeetingRooms,
-        meetingRooms,
+        companyId,
       });
       successResponse(res, 'User created successfully', user);
+      return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      // errorResponse(res, error.message);
+      console.log(error.stack);
       errorResponse(res, error.message);
     }
   },
