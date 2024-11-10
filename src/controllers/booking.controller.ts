@@ -61,7 +61,8 @@ export const BookingController = {
 
   async getAll(req: Request, res: Response) {
     try {
-      const { limit, page, search, companyId } = req.query;
+      const { id: companyId } = req.params;
+      const { limit, page, search } = req.query;
       const bookings = await bookingRepository.getAll(
         limit as string,
         page as string,
