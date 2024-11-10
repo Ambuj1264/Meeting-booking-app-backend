@@ -76,7 +76,12 @@ export class UserRepository {
   }
 
   async getUserByEmail(email: string) {
-    return await User.findOne({ email: email.toLowerCase(), isDeleted: false });
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isDeleted: false,
+    });
+    console.log(user, 'user');
+    return user;
   }
 
   async getAllUsers() {
@@ -99,6 +104,7 @@ export class UserRepository {
   async login(email: string, password: string) {
     try {
       const user = await this.getUserByEmail(email);
+      console.log(user, 'user');
       if (!user) {
         throw new Error('User not found');
       }
