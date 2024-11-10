@@ -61,11 +61,12 @@ export const BookingController = {
 
   async getAll(req: Request, res: Response) {
     try {
-      const { limit, page, search } = req.query;
+      const { limit, page, search, companyId } = req.query;
       const bookings = await bookingRepository.getAll(
         limit as string,
         page as string,
-        search as string
+        search as string,
+        companyId as string
       );
       successResponse(res, 'Bookings retrieved successfu  lly', bookings);
     } catch (error) {

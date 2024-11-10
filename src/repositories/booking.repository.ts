@@ -61,7 +61,8 @@ export class BookingRepository {
   async getAll(
     limit: string = '10',
     page: string = '1',
-    search: string = ''
+    search: string = '',
+    companyId: string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     console.log(search, '===================search');
@@ -73,6 +74,8 @@ export class BookingRepository {
         { endTime: { $regex: search, $options: 'i' } },
         // { meetingId: { $regex: search, $options: 'i' } },
       ],
+      isDeleted: false,
+      companyId,
     })
       .populate({
         path: 'meetingId',
