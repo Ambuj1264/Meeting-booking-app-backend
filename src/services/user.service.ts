@@ -44,7 +44,8 @@ export class UserService {
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      throw new Error(error.message);
+      console.log(error.stack, 'error.stack');
+      throw new Error(error.message + 'user service');
     }
     // You can add business logic here (e.g., password hashing)
   }

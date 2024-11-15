@@ -7,7 +7,7 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, required: true, enum: ROLES, default: ROLES.ADMIN },
-    companyId: { type: String, required: false, unique: true },
+    companyId: { type: String, required: false },
     isDeleted: { type: Boolean, default: false },
   },
   {

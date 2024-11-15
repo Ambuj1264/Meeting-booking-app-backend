@@ -4,7 +4,7 @@ const mySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     meetingRooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Room' }],
     noOfMeetingRooms: { type: Number, default: 1, min: 1 },

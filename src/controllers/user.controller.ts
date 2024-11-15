@@ -7,6 +7,7 @@ const userService = new UserService();
 
 export const UserController = {
   createUser: async (req: Request, res: Response) => {
+    console.log(req.body, '==========================meetingRooms');
     try {
       const {
         email,
@@ -17,43 +18,51 @@ export const UserController = {
         noOfMeetingRooms,
         meetingRooms,
       } = req.body;
+      console.log(name, 'name======================');
       // check user is already exist
       const isUserAlreadyExist = await userService.getUserByEmail(email);
       if (isUserAlreadyExist) {
         errorResponse(res, 'User already exist', isUserAlreadyExist);
         return;
       }
-      // check company name is already exist
-      const isCompanyAlreadyExist =
-        await userService.isCompanyAlreadyExist(company);
-      console.log(isCompanyAlreadyExist, 'isCompanyAlreadyExist');
-      if (isCompanyAlreadyExist) {
-        errorResponse(res, 'Company already exist', isCompanyAlreadyExist);
-        return;
+      let companyData;
+      let meetingRoomsData;
+      if (role === 'admin') {
+        // check company name is already exist
+        const isCompanyAlreadyExist =
+          await userService.isCompanyAlreadyExist(company);
+        console.log(isCompanyAlreadyExist, 'isCompanyAlreadyExist');
+        if (isCompanyAlreadyExist) {
+          errorResponse(res, 'Company already exist', isCompanyAlreadyExist);
+          return;
+        }
+
+        if (meetingRooms) {
+          // register first rooms
+          meetingRoomsData = await userService.createMeetingRooms(meetingRooms);
+
+          if (!meetingRoomsData) {
+            errorResponse(res, 'Failed to create meeting rooms');
+            return;
+          }
+        }
+
+        // register a company
+        companyData = await userService.createCompany(
+          company,
+          meetingRoomsData,
+          noOfMeetingRooms
+        );
+
+        if (!companyData) {
+          errorResponse(res, 'Failed to create company');
+          return;
+        }
       }
 
-      // register first rooms
-      const meetingRoomsData =
-        await userService.createMeetingRooms(meetingRooms);
-
-      if (!meetingRoomsData) {
-        errorResponse(res, 'Failed to create meeting rooms');
-        return;
-      }
-      // register a company
-      const companyData = await userService.createCompany(
-        company,
-        meetingRoomsData,
-        noOfMeetingRooms
-      );
-
-      if (!companyData) {
-        errorResponse(res, 'Failed to create company');
-        return;
-      }
-
-      const companyId: Types.ObjectId | undefined =
-        companyData && companyData._id;
+      const companyId: Types.ObjectId | undefined = companyData?._id
+        ? companyData?._id
+        : company;
 
       // register a user
       const user = await userService.createUser({
@@ -69,7 +78,7 @@ export const UserController = {
     } catch (error: any) {
       // errorResponse(res, error.message);
       console.log(error.stack);
-      errorResponse(res, error.message);
+      errorResponse(res, error.message, error.stack);
     }
   },
   getAllUsers: async (req: Request, res: Response) => {

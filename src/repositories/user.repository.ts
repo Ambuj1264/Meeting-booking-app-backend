@@ -70,8 +70,9 @@ export class UserRepository {
       return user;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      console.log(error.stack, 'error=========errror from repo');
       // Provide more specific error handling and rethrow the error
-      throw new Error(`${error.message}`);
+      throw new Error(`${error.message} + user repository`);
     }
   }
 
