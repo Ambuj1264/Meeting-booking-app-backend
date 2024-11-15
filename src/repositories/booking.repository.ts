@@ -65,10 +65,10 @@ export class BookingRepository {
     companyId: string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    console.log(search, '===================search');
     const data = await BookingModel.find({
       $or: [
         { email: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
         { date: { $regex: search, $options: 'i' } },
         { startTime: { $regex: search, $options: 'i' } },
         { endTime: { $regex: search, $options: 'i' } },
