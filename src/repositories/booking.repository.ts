@@ -66,6 +66,9 @@ export class BookingRepository {
     companyId: string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
+    // Get the current date and time
+    const now = moment().format('YYYY-MM-DD');
+    console.log(now, 'now ===========');
     const data = await BookingModel.find({
       $or: [
         { email: { $regex: search, $options: 'i' } },
@@ -77,7 +80,7 @@ export class BookingRepository {
       ],
       isDeleted: false,
       companyId,
-      date: { $gte: new Date() },
+      date: { $gte: now },
     })
       .populate({
         path: 'meetingId',
@@ -103,7 +106,6 @@ export class BookingRepository {
     companyId: string
   ) {
     const currentTime = moment().format('HH:mm');
-    console.log(currentTime, '[[[[[[[[[[[[[[');
     const data = await BookingModel.find({
       $and: [
         {
