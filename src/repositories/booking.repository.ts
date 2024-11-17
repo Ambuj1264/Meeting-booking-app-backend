@@ -77,6 +77,7 @@ export class BookingRepository {
       ],
       isDeleted: false,
       companyId,
+      date: { $lte: new Date() },
     })
       .populate({
         path: 'meetingId',
