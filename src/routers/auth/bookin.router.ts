@@ -6,5 +6,6 @@ const bookingRouter = Router();
 bookingRouter.post('/create', BookingController.create);
 bookingRouter.get('/getAll/:id', BookingController.getAll);
 bookingRouter.get('/findRoomsByCompanyId/:id', BookingController.findRoom);
+bookingRouter.get('/liveMeeting/:id', BookingController.liveMeeting);
 
 export default bookingRouter;

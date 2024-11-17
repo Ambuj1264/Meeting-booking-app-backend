@@ -1,5 +1,6 @@
 import { BookingModel } from '../models/booking.model';
 import { CompanyModel } from '../models/company.model';
+import moment from 'moment';
 
 export class BookingRepository {
   async findCompany(companyId: string) {
@@ -88,6 +89,52 @@ export class BookingRepository {
         select: 'name',
       })
       .limit(Number(limit))
+      .sort({ createdAt: -1 })
+      .skip(Number((Number(page) - 1) * Number(limit)));
+
+    return data;
+  }
+
+  async liveMeeting(
+    limit: string = '10',
+    page: string = '1',
+    search: string = '',
+    companyId: string
+  ) {
+    const currentTime = moment().format('HH:mm');
+    console.log(currentTime, '[[[[[[[[[[[[[[');
+    const data = await BookingModel.find({
+      $and: [
+        {
+          $or: [
+            { email: { $regex: search, $options: 'i' } },
+            { name: { $regex: search, $options: 'i' } },
+            { date: { $regex: search, $options: 'i' } },
+            { startTime: { $regex: search, $options: 'i' } },
+            { endTime: { $regex: search, $options: 'i' } },
+          ],
+        },
+        {
+          startTime: { $lte: currentTime },
+          endTime: { $gte: currentTime },
+          date: { $lte: new Date() },
+        },
+        { isDeleted: false },
+        { companyId },
+      ],
+    })
+      .populate({
+        path: 'meetingId',
+        match: { isDeleted: false },
+        select: 'name',
+      })
+      .populate({
+        path: 'companyId',
+        match: { isDeleted: false },
+        select: 'name',
+      })
+      .limit(Number(limit))
+      .sort({ createdAt: -1 })
       .skip(Number((Number(page) - 1) * Number(limit)));
 
     return data;

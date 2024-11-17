@@ -69,7 +69,24 @@ export const BookingController = {
         search as string,
         companyId as string
       );
-      successResponse(res, 'Bookings retrieved successfu  lly', bookings);
+      successResponse(res, 'Bookings retrieved successfully', bookings);
+    } catch (error) {
+      console.log(error);
+      errorResponse(res, 'Failed to retrieve bookings');
+    }
+  },
+  async liveMeeting(req: Request, res: Response) {
+    try {
+      const { id: companyId } = req.params;
+      const { limit, page, search } = req.query;
+      console.log(companyId, limit, page, search, '=================>');
+      const bookings = await bookingRepository.liveMeeting(
+        limit as string,
+        page as string,
+        search as string,
+        companyId as string
+      );
+      successResponse(res, 'Bookings retrievedsuccessfully', bookings);
     } catch (error) {
       console.log(error);
       errorResponse(res, 'Failed to retrieve bookings');
