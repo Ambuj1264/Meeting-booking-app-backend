@@ -66,9 +66,9 @@ export class BookingRepository {
     companyId: string
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    // Get the current date and time
-    const now = moment().format('YYYY-MM-DD');
-    console.log(now, 'now ===========');
+    // Get the current date and time as a single value
+    const now = moment();
+
     const data = await BookingModel.find({
       $or: [
         { email: { $regex: search, $options: 'i' } },
@@ -76,11 +76,19 @@ export class BookingRepository {
         { date: { $regex: search, $options: 'i' } },
         { startTime: { $regex: search, $options: 'i' } },
         { endTime: { $regex: search, $options: 'i' } },
-        // { meetingId: { $regex: search, $options: 'i' } },
       ],
       isDeleted: false,
       companyId,
-      date: { $gte: now },
+      $expr: {
+        $gt: [
+          {
+            $dateFromString: {
+              dateString: { $concat: ['$date', 'T', '$startTime'] },
+            },
+          },
+          now.toDate(),
+        ],
+      },
     })
       .populate({
         path: 'meetingId',
@@ -105,7 +113,11 @@ export class BookingRepository {
     search: string = '',
     companyId: string
   ) {
-    const currentTime = moment().format('HH:mm');
+    // Get the current date and time
+    const now = moment();
+    const currentDate = now.format('YYYY-MM-DD');
+    const currentTime = now.format('HH:mm');
+
     const data = await BookingModel.find({
       $and: [
         {
@@ -118,12 +130,12 @@ export class BookingRepository {
           ],
         },
         {
-          startTime: { $lte: currentTime },
-          endTime: { $gte: currentTime },
-          date: { $lte: new Date() },
+          date: currentDate, // Ensure the meeting is today
+          startTime: { $lte: currentTime }, // Meeting has started
+          endTime: { $gte: currentTime }, // Meeting hasn't ended yet
         },
-        { isDeleted: false },
-        { companyId },
+        { isDeleted: false }, // Only active meetings
+        { companyId }, // Filter by the provided company ID
       ],
     })
       .populate({
