@@ -1,7 +1,7 @@
 import { BookingModel } from '../models/booking.model';
 import { CompanyModel } from '../models/company.model';
-import moment from 'moment';
-
+// import moment from 'moment';
+import moment from 'moment-timezone';
 export class BookingRepository {
   async findCompany(companyId: string) {
     const result = await CompanyModel.find({
@@ -113,8 +113,10 @@ export class BookingRepository {
     search: string = '',
     companyId: string
   ) {
+    const timezone = process.env.APP_TIMEZONE || 'UTC'; //
     // Get the current date and time
-    const now = moment();
+    const severTime = new Date();
+    const now = moment(severTime).tz(timezone);
     const currentDate = now.format('YYYY-MM-DD');
     const currentTime = now.format('HH:mm');
 
