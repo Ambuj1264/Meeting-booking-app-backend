@@ -118,6 +118,12 @@ export class BookingRepository {
     const currentDate = now.format('YYYY-MM-DD');
     const currentTime = now.format('HH:mm');
 
+    console.log(
+      currentDate,
+      currentTime,
+      '===============current time and date'
+    );
+
     const data = await BookingModel.find({
       $and: [
         {
