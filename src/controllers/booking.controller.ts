@@ -92,4 +92,25 @@ export const BookingController = {
       errorResponse(res, 'Failed to retrieve bookings');
     }
   },
+  async deleteMeeting(req: Request, res: Response) {
+    try {
+      const { id: meetingId } = req.params;
+      const { email, companyId } = req.body;
+      console.log(meetingId, email);
+      const deleteMeetingResult = await bookingRepository.deleteMeeting(
+        meetingId,
+        email,
+        companyId
+      );
+      if (!deleteMeetingResult) {
+        errorResponse(res, 'Failed to delete meeting', deleteMeetingResult);
+        return;
+      }
+      successResponse(res, 'Meeting deleted successfully');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to delete meeting' + error.stack);
+    }
+  },
 };

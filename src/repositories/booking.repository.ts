@@ -1,3 +1,4 @@
+import { User } from '../models/user.model';
 import { BookingModel } from '../models/booking.model';
 import { CompanyModel } from '../models/company.model';
 // import moment from 'moment';
@@ -30,6 +31,7 @@ export class BookingRepository {
       date,
       meetingId,
       companyId,
+      isDeleted: false,
       $or: [
         {
           startTime: { $lt: endTime }, // Existing booking starts before the requested end time
@@ -161,5 +163,62 @@ export class BookingRepository {
       .skip(Number((Number(page) - 1) * Number(limit)));
 
     return data;
+  }
+  async findUser(email: string, companyId: string) {
+    const findUser = await User.findOne({
+      email: email.toLowerCase(),
+      companyId,
+      isDeleted: false,
+    });
+    return findUser;
+  }
+  async deleteMeeting(meetingId: string, email: string, companyId: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const findUser: any = await this.findUser(email, companyId);
+    if (!findUser) {
+      throw new Error('User not found');
+      return;
+    }
+
+    const role = findUser?.role;
+
+    if (role === 'admin') {
+      const deleteByAdmin = await BookingModel.updateOne(
+        { _id: meetingId, companyId },
+        { $set: { isDeleted: true } },
+        {
+          new: true,
+        }
+      );
+
+      if (!deleteByAdmin) {
+        throw new Error('Meeting not found');
+        return;
+      }
+      return deleteByAdmin;
+    } else if (role === 'user') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const findBooking: any = await BookingModel.findOne({
+        _id: meetingId,
+      });
+
+      if (findBooking?.createdBy !== findUser?._id) {
+        throw new Error('You are not authorized to delete this meeting');
+        return;
+      }
+      const deleteByUser = await BookingModel.updateOne(
+        { _id: meetingId, companyId },
+        { $set: { isDeleted: true } },
+        {
+          new: true,
+        }
+      );
+
+      if (!deleteByUser) {
+        throw new Error('Meeting not found');
+        return;
+      }
+      return deleteByUser;
+    }
   }
 }
