@@ -113,4 +113,15 @@ export const BookingController = {
       errorResponse(res, 'Failed to delete meeting' + error.stack);
     }
   },
+  async getAllUsers(req: Request, res: Response) {
+    try {
+      const { id: companyId } = req.params;
+      const users = await bookingRepository.getAllUsers(companyId);
+      successResponse(res, 'Users retrieved successfully', users);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to retrieve users', error.stack);
+    }
+  },
 };

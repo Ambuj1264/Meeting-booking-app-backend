@@ -221,4 +221,11 @@ export class BookingRepository {
       return deleteByUser;
     }
   }
+  async getAllUsers(id: string) {
+    console.log(id, 'id============');
+    return await User.find({
+      companyId: id,
+      isDeleted: false,
+    });
+  }
 }
