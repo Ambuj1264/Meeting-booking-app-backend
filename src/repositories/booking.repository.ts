@@ -200,9 +200,10 @@ export class BookingRepository {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const findBooking: any = await BookingModel.findOne({
         _id: meetingId,
+        isDeleted: false,
       });
 
-      if (findBooking?.createdBy !== findUser?._id) {
+      if (findBooking?.email !== findUser?.email) {
         throw new Error('You are not authorized to delete this meeting');
         return;
       }
