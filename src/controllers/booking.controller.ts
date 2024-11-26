@@ -79,7 +79,6 @@ export const BookingController = {
     try {
       const { id: companyId } = req.params;
       const { limit, page, search } = req.query;
-      console.log(companyId, limit, page, search, '=================>');
       const bookings = await bookingRepository.liveMeeting(
         limit as string,
         page as string,
@@ -89,7 +88,7 @@ export const BookingController = {
       successResponse(res, 'Bookings retrievedsuccessfully', bookings);
     } catch (error) {
       console.log(error);
-      errorResponse(res, 'Failed to retrieve bookings');
+      errorResponse(res, 'Failed to retrieve bookings', error);
     }
   },
   async deleteMeeting(req: Request, res: Response) {
@@ -116,12 +115,38 @@ export const BookingController = {
   async getAllUsers(req: Request, res: Response) {
     try {
       const { id: companyId } = req.params;
-      const users = await bookingRepository.getAllUsers(companyId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { limit, page, search }: any = req.query;
+      const users = await bookingRepository.getAllUsers(
+        companyId,
+        limit,
+        page,
+        search
+      );
       successResponse(res, 'Users retrieved successfully', users);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
       errorResponse(res, 'Failed to retrieve users', error.stack);
+    }
+  },
+  async deleteUsers(req: Request, res: Response) {
+    try {
+      const { id: userId } = req.params;
+      const { companyId } = req.body;
+      const deleteUserResult = await bookingRepository.deleteUser(
+        userId,
+        companyId
+      );
+      if (!deleteUserResult) {
+        errorResponse(res, 'Failed to delete user', deleteUserResult);
+        return;
+      }
+      successResponse(res, 'User deleted successfully', deleteUserResult);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to delete user', error.stack);
     }
   },
 };

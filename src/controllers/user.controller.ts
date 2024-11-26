@@ -18,7 +18,6 @@ export const UserController = {
         noOfMeetingRooms,
         meetingRooms,
       } = req.body;
-      console.log(name, 'name======================');
       // check user is already exist
       const isUserAlreadyExist = await userService.getUserByEmail(email);
       if (isUserAlreadyExist) {

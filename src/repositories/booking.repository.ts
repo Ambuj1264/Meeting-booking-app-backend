@@ -222,11 +222,34 @@ export class BookingRepository {
       return deleteByUser;
     }
   }
-  async getAllUsers(id: string) {
-    console.log(id, 'id============');
+  async getAllUsers(
+    id: string,
+    limit: string = '10',
+    page: string = '1',
+    search: string = ''
+  ) {
+    const condision = {
+      $or: [
+        { email: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
+      ],
+    };
     return await User.find({
       companyId: id,
       isDeleted: false,
-    });
+      ...condision,
+    })
+      .limit(Number(limit))
+      .sort({ createdAt: -1 })
+      .skip(Number((Number(page) - 1) * Number(limit)));
+  }
+  async deleteUser(id: string, companyId: string) {
+    return await User.updateOne(
+      { _id: id, companyId },
+      { $set: { isDeleted: true } },
+      {
+        new: true,
+      }
+    );
   }
 }

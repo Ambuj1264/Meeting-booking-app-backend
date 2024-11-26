@@ -9,5 +9,6 @@ bookingRouter.get('/findRoomsByCompanyId/:id', BookingController.findRoom);
 bookingRouter.get('/liveMeeting/:id', BookingController.liveMeeting);
 bookingRouter.post('/deleteMeeting/:id', BookingController.deleteMeeting);
 bookingRouter.get('/getAllUsers/:id', BookingController.getAllUsers);
+bookingRouter.post('/deleteUser/:id', BookingController.deleteUsers);
 
 export default bookingRouter;
