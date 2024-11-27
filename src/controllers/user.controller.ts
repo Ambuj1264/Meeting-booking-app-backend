@@ -109,4 +109,31 @@ export const UserController = {
       errorResponse(res, error.message);
     }
   },
+
+  sentMail: async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      const user = await userService.sentMail(email);
+      successResponse(res, 'Mail sent successfully', user);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to sent mail', error.stack);
+    }
+  },
+  checkTokenIsValid: async (req: Request, res: Response) => {
+    try {
+      const { token } = req.params;
+      const isValid = await userService.checkTokenIsValid(token);
+      if (!isValid) {
+        errorResponse(res, 'Token is not valid');
+        return;
+      }
+      successResponse(res, 'Token is valid', isValid);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to check token', error.stack);
+    }
+  },
 };
