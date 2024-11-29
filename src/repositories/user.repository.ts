@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import { CompanyModel } from '../models/company.model';
 import { RoomModel } from '../models/room.model';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+
 export class UserRepository {
   async createCompany(
     name: string,
@@ -56,7 +57,8 @@ export class UserRepository {
       // }
 
       // Hash the password before saving
-      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const hashedPassword = bcrypt.hash(password, 10);
 
       // Create a new user with hashed password
       const user = await User.create({
@@ -152,6 +154,52 @@ export class UserRepository {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       throw new Error('Failed to generate token' + error.message);
+    }
+  }
+  async forgotPassword(password: string, email: string) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword, 'hashedPassword------------999--------------8');
+    const result = await User.findOneAndUpdate(
+      { email, isDeleted: false },
+      { $set: { password: hashedPassword } },
+      { new: true }
+    );
+    console.log(result, 'result============');
+    return result;
+  }
+
+  async getMe(id: string) {
+    try {
+      console.log(id, 'id');
+
+      // Ensure `id` is converted to an ObjectId
+      const objectId = new mongoose.Types.ObjectId(id);
+
+      // Check the find query result for debugging
+      const findResult = await User.find({
+        _id: objectId,
+        isDeleted: false,
+      }).lean();
+      console.log(findResult, 'findResult');
+
+      // Use aggregation with proper `$match` and `$lookup`
+      const result = await User.aggregate([
+        { $match: { _id: objectId, isDeleted: false } },
+        {
+          $lookup: {
+            from: 'Company',
+            localField: 'companyId',
+            foreignField: '_id',
+            as: 'company',
+          },
+        },
+      ]);
+
+      console.log(result, 'result============');
+      return result;
+    } catch (error) {
+      console.error('Error in getMe:', error);
+      throw error;
     }
   }
 }

@@ -174,4 +174,15 @@ export class UserService {
       return false;
     }
   }
+  forgotPassword(password: string, token: string) {
+    const newToken = token.replace(/_dev_/g, '.');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const decoded: any = jwt.verify(newToken, process.env.APP_SECRET!);
+    console.log(decoded, 'decoded');
+    if (!decoded) {
+      throw new Error('Token is not valid');
+    }
+    const email = decoded.email;
+    return userRepository.forgotPassword(password, email);
+  }
 }

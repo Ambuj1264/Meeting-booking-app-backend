@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
 import { errorResponse, successResponse } from '../utils/response';
 import { Types } from 'mongoose';
+import { UserRepository } from '../repositories/user.repository';
 
 const userService = new UserService();
+const userRepository = new UserRepository();
 
 export const UserController = {
   createUser: async (req: Request, res: Response) => {
@@ -134,6 +136,32 @@ export const UserController = {
     } catch (error: any) {
       console.log(error);
       errorResponse(res, 'Failed to check token', error.stack);
+    }
+  },
+  forgotPassword: async (req: Request, res: Response) => {
+    try {
+      const { newPassword, token } = req.body;
+      const user = await userService.forgotPassword(newPassword, token);
+      if (!user) {
+        errorResponse(res, 'Token is not valid');
+        return;
+      }
+      successResponse(res, 'Password sent successfully', user);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to sent mail', error.stack);
+    }
+  },
+  getMe: async (req: Request, res: Response) => {
+    try {
+      const user = await userRepository.getMe(req.body.id);
+
+      successResponse(res, 'User retrieved successfully', user);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorResponse(res, 'Failed to retrieve user', error.stack);
     }
   },
 };
