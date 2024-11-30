@@ -48,7 +48,8 @@ export class BookingRepository {
     endTime: string,
     meetingId: string,
     companyId: string,
-    name: string
+    name: string,
+    subject: string
   ) {
     return await BookingModel.create({
       email,
@@ -58,6 +59,7 @@ export class BookingRepository {
       meetingId,
       companyId,
       name,
+      subject,
     });
   }
 

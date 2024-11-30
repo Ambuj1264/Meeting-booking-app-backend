@@ -8,6 +8,7 @@ const BookingSchema = new mongoose.Schema(
     date: { type: String, required: true },
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },
+    subject: { type: String, required: true },
     meetingId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Room',

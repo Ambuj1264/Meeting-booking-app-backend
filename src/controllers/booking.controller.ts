@@ -16,8 +16,16 @@ export const BookingController = {
   },
   create: async (req: Request, res: Response) => {
     try {
-      const { email, date, endTime, startTime, meetingId, companyId, name } =
-        req.body;
+      const {
+        email,
+        date,
+        endTime,
+        startTime,
+        meetingId,
+        companyId,
+        name,
+        subject,
+      } = req.body;
       //check email is exist or not
       //check the time is already token
       const isTakenTimeByOtherBooking =
@@ -44,7 +52,8 @@ export const BookingController = {
         endTime,
         meetingId,
         companyId,
-        name
+        name,
+        subject
       );
       if (!booking) {
         errorResponse(res, 'Failed to create booking');
