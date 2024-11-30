@@ -9,7 +9,6 @@ const userRepository = new UserRepository();
 
 export const UserController = {
   createUser: async (req: Request, res: Response) => {
-    console.log(req.body, '==========================meetingRooms');
     try {
       const {
         email,
@@ -21,7 +20,7 @@ export const UserController = {
         meetingRooms,
       } = req.body;
       // check user is already exist
-      const isUserAlreadyExist = await userService.getUserByEmail(email);
+      const isUserAlreadyExist = await userRepository.getUserByEmail(email);
       if (isUserAlreadyExist) {
         errorResponse(res, 'User already exist', isUserAlreadyExist);
         return;

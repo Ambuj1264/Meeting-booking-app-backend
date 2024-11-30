@@ -58,7 +58,7 @@ export class UserRepository {
 
       // Hash the password before saving
 
-      const hashedPassword = bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create a new user with hashed password
       const user = await User.create({
@@ -176,18 +176,19 @@ export class UserRepository {
       const objectId = new mongoose.Types.ObjectId(id);
 
       // Check the find query result for debugging
-      const findResult = await User.find({
-        _id: objectId,
-        isDeleted: false,
-      }).lean();
-      console.log(findResult, 'findResult');
+      // const findResult = await User.find({
+      //   _id: objectId,
+      //   isDeleted: false,
+      // }).populate('companyId');
+      // // .lean();
+      // console.log(findResult, 'findResult');
 
       // Use aggregation with proper `$match` and `$lookup`
       const result = await User.aggregate([
         { $match: { _id: objectId, isDeleted: false } },
         {
           $lookup: {
-            from: 'Company',
+            from: 'companies',
             localField: 'companyId',
             foreignField: '_id',
             as: 'company',
@@ -195,7 +196,7 @@ export class UserRepository {
         },
       ]);
 
-      console.log(result, 'result============');
+      // console.log(result, 'result============');
       return result;
     } catch (error) {
       console.error('Error in getMe:', error);

@@ -35,6 +35,14 @@ export class UserService {
     role: string;
     companyId?: Types.ObjectId;
   }) {
+    console.log(
+      email,
+      name,
+      password,
+      role,
+      companyId,
+      'email,name,password,role,companyId'
+    );
     try {
       return await userRepository.createUser({
         email,
