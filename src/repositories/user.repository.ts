@@ -83,7 +83,6 @@ export class UserRepository {
       email: email.toLowerCase(),
       isDeleted: false,
     });
-    console.log(user, 'user');
     return user;
   }
 
@@ -107,7 +106,6 @@ export class UserRepository {
   async login(email: string, password: string) {
     try {
       const user = await this.getUserByEmail(email);
-      console.log(user, 'user');
       if (!user) {
         throw new Error('User not found');
       }
@@ -122,7 +120,6 @@ export class UserRepository {
         email: user.email,
         name: user.name,
       });
-      console.log(token, '------------------------------');
 
       // Convert user to a plain JavaScript object before modifying it
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,8 +132,6 @@ export class UserRepository {
 
       // Add the generated token to the object
       userWithoutPassword['token'] = token;
-      console.log(userWithoutPassword, 'userWithoutPassword');
-
       return userWithoutPassword;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -158,30 +153,18 @@ export class UserRepository {
   }
   async forgotPassword(password: string, email: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword, 'hashedPassword------------999--------------8');
     const result = await User.findOneAndUpdate(
       { email, isDeleted: false },
       { $set: { password: hashedPassword } },
       { new: true }
     );
-    console.log(result, 'result============');
     return result;
   }
 
   async getMe(id: string) {
     try {
-      console.log(id, 'id');
-
       // Ensure `id` is converted to an ObjectId
       const objectId = new mongoose.Types.ObjectId(id);
-
-      // Check the find query result for debugging
-      // const findResult = await User.find({
-      //   _id: objectId,
-      //   isDeleted: false,
-      // }).populate('companyId');
-      // // .lean();
-      // console.log(findResult, 'findResult');
 
       // Use aggregation with proper `$match` and `$lookup`
       const result = await User.aggregate([
@@ -196,7 +179,6 @@ export class UserRepository {
         },
       ]);
 
-      // console.log(result, 'result============');
       return result;
     } catch (error) {
       console.error('Error in getMe:', error);

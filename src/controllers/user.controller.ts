@@ -31,7 +31,6 @@ export const UserController = {
         // check company name is already exist
         const isCompanyAlreadyExist =
           await userService.isCompanyAlreadyExist(company);
-        console.log(isCompanyAlreadyExist, 'isCompanyAlreadyExist');
         if (isCompanyAlreadyExist) {
           errorResponse(res, 'Company already exist', isCompanyAlreadyExist);
           return;

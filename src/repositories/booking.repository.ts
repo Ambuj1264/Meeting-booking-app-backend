@@ -26,7 +26,6 @@ export class BookingRepository {
     meetingId: string,
     companyId: string
   ) {
-    console.log(meetingId);
     const result = await BookingModel.findOne({
       date,
       meetingId,
@@ -67,33 +66,72 @@ export class BookingRepository {
     limit: string = '10',
     page: string = '1',
     search: string = '',
-    companyId: string
+    companyId: string,
+    date: string = '',
+    startTime: string = '',
+    endTime: string = ''
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     // Get the current date and time as a single value
     const now = moment();
 
-    const data = await BookingModel.find({
-      $or: [
-        { email: { $regex: search, $options: 'i' } },
-        { name: { $regex: search, $options: 'i' } },
-        { date: { $regex: search, $options: 'i' } },
-        { startTime: { $regex: search, $options: 'i' } },
-        { endTime: { $regex: search, $options: 'i' } },
-      ],
-      isDeleted: false,
-      companyId,
-      $expr: {
-        $gt: [
-          {
-            $dateFromString: {
-              dateString: { $concat: ['$date', 'T', '$startTime'] },
-            },
+    // Ensure that search, date, startTime, and endTime are always strings
+    const searchString = String(search || '');
+    const dateString = String(date || '');
+    const startTimeString = String(startTime.slice(0, 5) || '');
+    const endTimeString = String(endTime.slice(0, 5) || '');
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query: any = {
+      $and: [
+        {
+          $or: [
+            { email: { $regex: searchString, $options: 'i' } },
+            { name: { $regex: searchString, $options: 'i' } },
+          ],
+        },
+        { isDeleted: false },
+        { companyId },
+        {
+          $expr: {
+            $gt: [
+              {
+                $dateFromString: {
+                  dateString: {
+                    $concat: ['$date', 'T', '$startTime'],
+                  },
+                },
+              },
+              now.toDate(),
+            ],
           },
-          now.toDate(),
+        },
+      ],
+    };
+
+    // Add date condition if date is provided
+    if (dateString) {
+      query.$and.push({
+        date: { $eq: dateString }, // Match exact date if provided
+      });
+    }
+
+    // Add time range conditions if both startTime and endTime are provided
+    if (startTimeString && endTimeString) {
+      query.$and.push({
+        $or: [
+          // Case 1: Bookings that start before the provided end time and end after the provided start time
+          {
+            startTime: { $lte: endTimeString },
+            endTime: { $gte: startTimeString },
+          },
+          // Case 2: Bookings that start and end within the provided time range
+          { startTime: { $gte: startTimeString, $lte: endTimeString } },
         ],
-      },
-    })
+      });
+    }
+
+    const data = await BookingModel.find(query)
       .populate({
         path: 'meetingId',
         match: { isDeleted: false },
@@ -123,12 +161,6 @@ export class BookingRepository {
     const now = moment(severTime).tz(timezone);
     const currentDate = now.format('YYYY-MM-DD');
     const currentTime = now.format('HH:mm');
-
-    console.log(
-      currentDate,
-      currentTime,
-      '===============current time and date'
-    );
 
     const data = await BookingModel.find({
       $and: [

@@ -6,7 +6,6 @@ export const BookingController = {
   findRoom: async (req: Request, res: Response) => {
     try {
       const { id: companyId } = req.params;
-      console.log(companyId);
       const findCompany = await bookingRepository.findCompany(companyId);
 
       successResponse(res, 'Company retrieved successfully', findCompany);
@@ -26,6 +25,7 @@ export const BookingController = {
         name,
         subject,
       } = req.body;
+
       //check email is exist or not
       //check the time is already token
       const isTakenTimeByOtherBooking =
@@ -71,12 +71,15 @@ export const BookingController = {
   async getAll(req: Request, res: Response) {
     try {
       const { id: companyId } = req.params;
-      const { limit, page, search } = req.query;
+      const { pageSize, page, search, date, startTime, endTime } = req.query;
       const bookings = await bookingRepository.getAll(
-        limit as string,
+        pageSize as string,
         page as string,
         search as string,
-        companyId as string
+        companyId as string,
+        date as string,
+        startTime as string,
+        endTime as string
       );
       successResponse(res, 'Bookings retrieved successfully', bookings);
     } catch (error) {
@@ -104,7 +107,6 @@ export const BookingController = {
     try {
       const { id: meetingId } = req.params;
       const { email, companyId } = req.body;
-      console.log(meetingId, email);
       const deleteMeetingResult = await bookingRepository.deleteMeeting(
         meetingId,
         email,

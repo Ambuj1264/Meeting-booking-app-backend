@@ -35,14 +35,6 @@ export class UserService {
     role: string;
     companyId?: Types.ObjectId;
   }) {
-    console.log(
-      email,
-      name,
-      password,
-      role,
-      companyId,
-      'email,name,password,role,companyId'
-    );
     try {
       return await userRepository.createUser({
         email,
@@ -186,7 +178,6 @@ export class UserService {
     const newToken = token.replace(/_dev_/g, '.');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const decoded: any = jwt.verify(newToken, process.env.APP_SECRET!);
-    console.log(decoded, 'decoded');
     if (!decoded) {
       throw new Error('Token is not valid');
     }
